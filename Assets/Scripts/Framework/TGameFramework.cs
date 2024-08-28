@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TGameFramework : MonoBehaviour
+public sealed class TGameFramework
 {
     public static TGameFramework Instance { get; private set; }
 
@@ -11,7 +11,7 @@ public class TGameFramework : MonoBehaviour
     private Dictionary<Type, BaseGameModule> m_modulesdic = new Dictionary<Type, BaseGameModule>();
 
 
-    private void Awake()
+    public static void Initialize()
     {
         Instance = new TGameFramework();
     }
@@ -44,7 +44,7 @@ public class TGameFramework : MonoBehaviour
         m_modulesdic.Add(type, module);
     }
 
-    private void Update()
+    public void Update()
     {
         IsRun();
         float deltaTime = Time.deltaTime;
@@ -53,7 +53,7 @@ public class TGameFramework : MonoBehaviour
             item.OnModuleUpdate(deltaTime);
         }
     }
-    private void LateUpdate()
+    public void LateUpdate()
     {
         IsRun();
         float deltaTime = Time.deltaTime;
@@ -62,7 +62,7 @@ public class TGameFramework : MonoBehaviour
             item.OnModuleLateUpdate(deltaTime);
         }
     }
-    private void FixedUpdate()
+    public void FixedUpdate()
     {
         IsRun();
         float deltaTime = Time.deltaTime;
@@ -101,7 +101,7 @@ public class TGameFramework : MonoBehaviour
             item.OnModuleStop();
         }
         Instance = null;
-        Initialized = false;
+        Initialized = false; 
     }
 
 

@@ -1,7 +1,9 @@
 using UnityEngine;
+ 
 
 public abstract class BaseGameModule : MonoBehaviour
 {
+    
     private void Awake() { }
     private void Start() { }
     private void Update() { }

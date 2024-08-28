@@ -7,6 +7,15 @@ using System.Reflection;
 
 public class MessageModule : BaseGameModule
 {
+
+    public static MessageModule Instance;
+
+    private void Awake()
+    {
+        Instance = this;    
+    }
+
+
     public delegate Task MessageHandlerEventArgs<T>(T arg);
 
     private Dictionary<Type, List<object>> globalMessageHandlers;
