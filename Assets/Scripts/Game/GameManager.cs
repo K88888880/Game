@@ -3,12 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-
+     
     [ModuleAttrbute(1)]
     public static MessageModule Message { get => TGameFramework.Instance.GetModule<MessageModule>(); }
+    [ModuleAttrbute(2)]
+    public static ProcedureModule Procedure { get => TGameFramework.Instance.GetModule<ProcedureModule>(); }
 
     private bool activing;
     private void Awake()
@@ -28,6 +31,7 @@ public class GameManager : MonoBehaviour
         Application.logMessageReceived += OnReceiveLog;
         TGameFramework.Initialize();
         StartupModules();
+        TGameFramework.Instance.InitModules();
     }
     private void Start()
     {
@@ -47,15 +51,27 @@ public class GameManager : MonoBehaviour
         TGameFramework.Instance.FixedUpdate();
     }
 
+    private void OnDestroy()
+    {
+        if (activing)
+        {
+            Application.logMessageReceived -= OnReceiveLog;
+            TGameFramework.Instance.Destroy();
+        }
+    }
+
     public void StartupModules()
     {
         List<ModuleAttrbute> moduleAttrbutes = new List<ModuleAttrbute>();
+        //搜索具有指定名称的公共属性
         PropertyInfo[] propertyInfos = GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
         Type basecompType = typeof(BaseGameModule);
         for (int i = 0; i < propertyInfos.Length; i++)
         {
             PropertyInfo property = propertyInfos[i];
             if (!basecompType.IsAssignableFrom(property.PropertyType)) continue;
+            //获取自定义特性
+            //GetCustomAttributes(要搜索的特性类型，是否搜索该成员的继承链以查找这些特性)
             object[] attrs = property.GetCustomAttributes(typeof(ModuleAttrbute), false);
             if (attrs.Length == 0) continue;
             Component comp = GetComponentInChildren(property.PropertyType);
@@ -75,7 +91,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
+    //自定义特性类(应用特性的程序元素（是类或结构）,程序元素可以指定多个特性)  
     [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
     public sealed class ModuleAttrbute : Attribute, IComparable<ModuleAttrbute>
     {
